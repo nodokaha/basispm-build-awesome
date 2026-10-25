@@ -2,7 +2,7 @@
 
 # Self-contained build: no local Basis checkout or prebuilt basispm is required.
 FROM mcr.microsoft.com/dotnet/sdk:10.0-noble AS build
-
+ARG TARGETARCH
 ARG BASIS_REF=long-term-support-20260916
 ARG BASIS_REPOSITORY=https://github.com/BasisVR/Basis.git
 ARG BASISPM_REPOSITORY=https://github.com/BasisVR/BasisPackageManager.git
@@ -13,19 +13,17 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends git ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# Build the basispm CLI from its upstream source.
+# Compile basispm as a self-contained executable for the target architecture.
 RUN git clone --depth 1 "${BASISPM_REPOSITORY}" /tmp/BasisPackageManager \
     && dotnet publish /tmp/BasisPackageManager/src/BasisPM.Cli/BasisPM.Cli.csproj \
-       --configuration Release --output /opt/basispm
-
-ENV PATH="/opt/basispm:${PATH}"
+       --configuration Release --runtime "linux-${TARGETARCH}" --self-contained true \
+       --output /opt/basispm
 
 # Clone the official Basis server source in the image build itself.
 RUN git clone --depth 1 --branch "${BASIS_REF}" "${BASIS_REPOSITORY}" /src/Basis
 
-# Register the TCP transport package with basispm. Package restore/build then resolves
-# the pinned package source from the generated manifest/lock files.
-RUN basispm --project /src/Basis server-install "${TCP_TRANSPORT_REPOSITORY}"
+# Install the transport through basispm; its lock file pins the package commit.
+RUN /opt/basispm/basispm --project /src/Basis server-install "${TCP_TRANSPORT_REPOSITORY}"
 
 WORKDIR "/src/Basis/Basis Server/BasisServerConsole"
 RUN dotnet restore ./BasisNetworkConsole.csproj
