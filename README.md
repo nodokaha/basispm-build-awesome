@@ -1,4 +1,4 @@
-# Basis Server + TCP transport (Docker)
+# Basis Server + WebSocket transport (Docker)
 
 A Docker build that fetches its source code itself. You do not need to clone Basis or install basispm on the host.
 
@@ -10,7 +10,7 @@ A Docker build that fetches its source code itself. You do not need to clone Bas
 4. Restores and publishes the standalone Basis server.
 5. Copies only the published server into the runtime image.
 
-The default Basis ref is long-term-support-20260916. Override it with a known branch, tag, or commit if needed. The transport repository must be compatible with the selected Basis revision.
+The default Basis ref is developer. Override it with a known branch, tag, or commit if needed. The transport repository must be compatible with the selected Basis revision.
 
 ## Build
 
@@ -21,7 +21,7 @@ docker build -t basis-tcp-server:local .
 To select a different Basis revision:
 
 ~~~sh
-docker build --build-arg BASIS_REF=long-term-support-20260916 -t basis-tcp-server:local .
+docker build --build-arg BASIS_REF=developer -t basis-tcp-server:local .
 ~~~
 
 ## Run
@@ -55,7 +55,7 @@ For Coolify, use this repository as a Docker Compose application. Ensure UDP por
 | Port | Protocol | Purpose |
 |---|---|---|
 | 4296 | UDP | LiteNetLib |
-| 4296 | TCP | TCP transport / WebSocket listener, depending on the installed package |
+| 4296 | TCP | WebSocket transport |
 | 10666 | TCP | Health endpoint |
 | 1234 | TCP | Statistics / metrics |
 
