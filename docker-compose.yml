@@ -1,0 +1,39 @@
+services:
+  basis-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        BASIS_REF: ${BASIS_REF:-long-term-support-20260916}
+        BASIS_REPOSITORY: ${BASIS_REPOSITORY:-https://github.com/BasisVR/Basis.git}
+        BASISPM_REPOSITORY: ${BASISPM_REPOSITORY:-https://github.com/BasisVR/BasisPackageManager.git}
+        TCP_TRANSPORT_REPOSITORY: ${TCP_TRANSPORT_REPOSITORY:-https://github.com/dooly123/Basis-TCP-Transport-Package.git}
+    image: ${IMAGE_NAME:-ghcr.io/nodokaha/basispm-build-awesome:latest}
+    restart: unless-stopped
+    init: true
+    environment:
+      SetPort: ${SET_PORT:-4296}
+      HealthCheckPort: ${HEALTH_CHECK_PORT:-10666}
+      PromethusPort: ${PROMETHEUS_PORT:-1234}
+      Password: ${BASIS_PASSWORD:?Set BASIS_PASSWORD in .env}
+      PeerLimit: ${PEER_LIMIT:-1024}
+      EnableStatistics: ${ENABLE_STATISTICS:-true}
+      EnableConsole: ${ENABLE_CONSOLE:-false}
+      UsingLoggingFile: ${USING_LOGGING_FILE:-true}
+      NetworkStackId: ${NETWORK_STACK_ID:-litenetlib,websocket}
+    ports:
+      - "${SET_PORT:-4296}:${SET_PORT:-4296}/udp"
+      - "${SET_PORT:-4296}:${SET_PORT:-4296}/tcp"
+      - "${HEALTH_CHECK_PORT:-10666}:${HEALTH_CHECK_PORT:-10666}/tcp"
+      - "${PROMETHEUS_PORT:-1234}:${PROMETHEUS_PORT:-1234}/tcp"
+    volumes:
+      - ./config:/app/config
+      - ./initialresources:/app/initialresources:ro
+      - ./storage:/app/storage
+      - ./logs:/app/logs
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:$${HEALTH_CHECK_PORT:-10666}/health >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
