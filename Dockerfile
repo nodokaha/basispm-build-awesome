@@ -3,7 +3,7 @@
 # Self-contained build: no local Basis checkout or prebuilt basispm is required.
 FROM mcr.microsoft.com/dotnet/sdk:10.0-noble AS build
 ARG TARGETARCH
-ARG BASIS_REF=long-term-support-20260916
+ARG BASIS_REF=developer
 ARG BASIS_REPOSITORY=https://github.com/BasisVR/Basis.git
 ARG BASISPM_REPOSITORY=https://github.com/BasisVR/BasisPackageManager.git
 ARG TCP_TRANSPORT_REPOSITORY=https://github.com/dooly123/Basis-TCP-Transport-Package.git
