@@ -15,8 +15,9 @@ RUN apt-get update \
 
 # Compile basispm as a self-contained executable for the target architecture.
 RUN git clone --depth 1 "${BASISPM_REPOSITORY}" /tmp/BasisPackageManager \
+    && case "${TARGETARCH}" in amd64) RID=linux-x64 ;; arm64) RID=linux-arm64 ;; *) echo "Unsupported TARGETARCH: ${TARGETARCH}" >&2; exit 1 ;; esac \
     && dotnet publish /tmp/BasisPackageManager/src/BasisPM.Cli/BasisPM.Cli.csproj \
-       --configuration Release --runtime "linux-${TARGETARCH}" --self-contained true \
+       --configuration Release --runtime "$RID" --self-contained true \
        --output /opt/basispm
 
 # Clone the official Basis server source in the image build itself.
