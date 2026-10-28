@@ -65,6 +65,7 @@ jobs:
           push: true
           build-args: |
             BASIS_REF=${{ github.event_name == 'workflow_dispatch' && inputs.basis_ref || 'developer' }}
+          no-cache: ${{ github.event_name == 'workflow_dispatch' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
