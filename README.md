@@ -1,3 +1,5 @@
+[![Build and publish Docker image](https://github.com/nodokaha/basispm-build-awesome/actions/workflows/publish-ghcr.yml/badge.svg?branch=main)](https://github.com/nodokaha/basispm-build-awesome/actions/workflows/publish-ghcr.yml)
+
 # Basis Server + WebSocket transport (Docker)
 
 A Docker build that fetches its source code itself. You do not need to clone Basis or install basispm on the host.
