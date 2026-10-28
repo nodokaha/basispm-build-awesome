@@ -2,13 +2,25 @@ name: Build and publish Docker image
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
     paths:
       - Dockerfile
       - docker-compose.yml
       - .dockerignore
       - .github/workflows/publish-ghcr.yml
   workflow_dispatch:
+    inputs:
+      basis_ref:
+        description: "Basis repository branch, tag, or commit to build"
+        required: true
+        default: "developer"
+        type: string
+      image_tag:
+        description: "Additional image tag (latest is also published)"
+        required: true
+        default: "manual"
+        type: string
 
 permissions:
   contents: read
@@ -42,6 +54,7 @@ jobs:
           tags: |
             type=raw,value=latest
             type=sha
+            type=raw,value=${{ inputs.image_tag }},enable=${{ github.event_name == 'workflow_dispatch' }}
 
       - name: Build and push
         uses: docker/build-push-action@v6
@@ -50,6 +63,8 @@ jobs:
           file: ./Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
+          build-args: |
+            BASIS_REF=${{ github.event_name == 'workflow_dispatch' && inputs.basis_ref || 'developer' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
